@@ -1,0 +1,217 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# bdtre.download
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+Provides functionalities to download and manage in a simple way geodata from the BDTRE database developed by the Piedmont geoportal. 
+
+What is the BDTRE (Base Dati Territoriale di Riferimento degli Enti)?
+From the website https://www.geoportale.piemonte.it/cms/bdtre/bdtre-2: "The Territorial Reference Database of the Bodies (BDTRE) is the geographical database of the Piedmontese territory promoted by the Piedmont Region, with the contents of a technical cartography, structured according to the - Technical rules for the definition of the content specifications of the geotopographic databases - nationally and primarily aimed at supporting the planning, governance and protection of the territory".
+
+From the following link: https://www.geoportale.piemonte.it/cms/bdtre/modalita-di-pubblicazione-e-fruizione it is possible to access to the different ways of using the database that in previous years of the 2021 it was possible to download by single municipality or by designing a polygonal area of limited size. Starting in 2021, they have begun to offer the possibility of downloading in an aggregate way, but still with time-consuming limitations.
+
+The purpose of this work is to give the possibility to download the data available on the platform through the R programming language in order to reduce the time it would take through the platform and then make the data available already in an organized mode.
+
+From the BDTRE it is possible to download different geodata for each municipality which are organized in different folders:
+- AMM: it contains shp of the municipal boundaries both as polygon and multiline and a punctual one for the municipal offices;
+- GEOFOTO: point shp with network vertices;
+- IDRO: contains the shp with hydrographic data;
+- IMM: contains multipolygonal shps of the surface of the buildings in the municipality;
+- IND: contains both punctual and linear shps regarding street classification and house numbers;
+- ORO: contains shp regarding the orography of the territory;
+- PERT: contains shp regarding the division of appurtenances between buildings and between public and private land;
+- SERV: contains shp regarding service infrastructures such as low and high voltage electricity networks;
+- TOPO: contains data on toponymy;
+- VEG: contains shp regarding agricultural, wooded and other types of natural areas.
+- VIAB: contains information about road infrastructure, including roads and railways;
+
+On the basis of the selections made by the user, the final function of the program returns in a single shp for all the territory downloaded the same categories within the previously mentioned folders.
+
+The work is also available as Jupyter notebook at the following link: https://github.com/Magio94/Download_BDTRE/blob/main/Download%20BDTRE.ipynb
+
+## Installation
+
+You can install the package from Github (first, you need to install the devtools package):
+
+``` r
+install_github("Magio94/bdtre.download")
+```
+
+## How use the package and examples of functionalities
+
+### Get municipality identification codes
+
+The National Institute of Statistics (ISTAT) entrusts each municipality with an identification number, the same for the province and for the regions. The BDTRE uses these numbers at the municipal level to download the data according to the one selected.
+
+For example for the BDTRE of the 2021: http://www.datigeo-piem-download.it/static/regp01/BDTRE2021_VECTOR/BDTRE_DATABASE_GEOTOPOGRAFICO_2021-LIMI_COMUNI_10_GAIMSDWL- YOU CAN INSERT HERE THE NUMBER YOU NEED -EPSG32632-SHP.zip
+
+To automatically download the data for each municipality, the identification numbers must first be downloaded. ISTAT offers a permanent link in csv format that can be read directly in R. The following function downloads the table and extracts the information for the Piedmont region only.
+
+Filter the data frame by province codes
+Using this fucntion the user can decide to store the municipality codes by province or for all the region. This will return a dataframe to filter the other function by downloading the selection made here from the BDTRE database.
+
+The user can select the municipalities by province putting as input '001' (Torino), '002' (Vercelli), '003' (Novara), '004' (Cuneo), '005' (Asti), '006' (Alessandria), '096' (Biella), '103' (Verbano) or 'All' to save the municipality codes for all the region
+
+Here you find the result for one selection:
+
+```{r example}
+library(bdtre.download)
+
+## how use the get_municipality_codes function
+
+Biella_province <- get_municipality_codes("096")
+print(Biella_province)
+
+```
+
+### Download BDTRE database for each municipality desired
+
+The program based on the number of the municipality stored in the variable made by the function get_municipality_codes will download the corresponding data. It is possible either to use the codes of the list pre-set by province or to build your own list with the desired municipalities by making another filter.
+
+The program is built to create subfolders starting from the position where the code is made run one. It starts from the creation of a folder called "Downloaded" and the program does not create a new folder in case you want to download other data for other provinces or for a list selected by the user since each time it checks if the same folder name exists.
+
+It also creates an additional sub-folder for each municipality.
+
+In the following example we are just downloading a province: 
+
+```{r example2}
+
+library(bdtre.download)
+
+## download from the database the data from the desired municipalities by province
+
+download_municipality(Biella_province)
+
+```
+
+### Example of download by a user list¶
+
+The user can also using the following function download just the interested municipalities in case he/she knows the number codes by inserting them inside a vector. This function helps the user to produce a data frame with the same structure produced by the get_municipality_codes function, but just for interested municipalities and you can pass it inside the function download_municipality as we did in the example before fo the Biella province.
+
+```{r example3}
+
+library(bdtre.download)
+
+# create a vector to select the desired municipalities and pass them in the fucntion
+user_list <- c('003016', '005008', '006004', '002035')
+
+user_selection <- download_selected_mun(user_list)
+
+print(user_selection)
+
+```
+
+### selection_path function 
+
+Example of how the function work by finding all the path relative to one selected shp for all the municipalities downloaded
+
+```{r example4}
+
+library(bdtre.download)
+
+selection_path('limi_comuni_piem')
+
+```
+
+### Apply the function for merging the shps inside the downloaded folder by the chosen category
+
+The user can insert the argument inside the merging_shp between the different choices in the list: 
+
+selection_list <- c('lim_com', 'limi_comuni_piem', 'sed_amm', 'ab_cda_vert', 'el_idr_vert', 'nd_idr', 'af_acq', 
+                    'dre_sup', 'ghi_nv', 'invaso_vert', 'sp_acq', 'aatt', 'attr_sp', 'cr_edf', 'cs_edi', 'edi_min', 
+                    'ele_cp', 'un_vol', 'argine', 'diga', 'edifc', 'galler', 'man_tr', 'mn_arr', 'mn_int', 'mn_ind',
+                    'mn_mau', 'mu_sos', 'ponte', 'tralic', 'acc_int', 'acc_pc_civico_tp_str', 'es_amm', 'tp_str', 
+                    'cv_liv_class', 'f_nter', 'pt_quo', 'a_tras', 'alveo', 'alveo_a', 'pe_uins', 'cv_aes', 'cv_dis',
+                    'loc_sg', 'scr_cr', 'ar_vrd', 'bosco', 'cl_agr', 'for_pc', 'ps_inc', 'a_pveg', 'albero', 
+                    'fil_al', 'for_pc', 'ac_vei', 'ar_vms', 'el_str_tp_str', 'el_vms', 'gz_str', 'gz_vms', 'iz_str',
+                    'tr_str', 'ac_cic', 'ac_ped', 'el_fer', 'gz_fer', 'sd_fer', 'nd_ele', 'tr_ele', 'v_rete')
+
+In the example streets shp was chosen:
+
+```{r example5}
+
+library(bdtre.download)
+
+## Example of merging one category from the downloaded data
+nc_merge <- merging_shp('el_str_tp_str')
+
+```
+
+The following plot show the result of the merging made by the previous function. 
+
+```{r pressure, echo = FALSE}
+
+# plot for the merging_shp function
+plot(nc_merge[7])
+
+```
+### Calculate indicators for each municipalities¶
+
+The function is an example of what can be achieved with the calculated data. In this case, the function is used to calculate the urbanization index based on the municipalities of interest. To obtain these data, a list was first created from which the program reads the shp files that indicate the urbanization elements for each municipality of interest.
+
+Once the total urbanized area has been added, the percentage of urbanization on the total surface is calculated. The latter is obtained from the polygonal shp with the boundaries of the municipality.
+
+```{r example6}
+
+library(bdtre.download)
+
+## basic example code
+
+data_frame_data <- percent_urbanized(Biella_province)
+
+```
+
+The user can also perform the same calculation for specific municipalities already downloaded, but as input, there must be a variable composed in the same way as the dataframe obtained by the get_municipality_codes function. To do this, you need to filter the list obtained from the same function for the istat code of the municipalities on which you want to make the calculation. Below is an example of how to do it:
+
+```{r example7}
+
+library(bdtre.download)
+
+# get the data fram of the province where the municiplaity is 
+mun_code <- get_municipality_codes('001')
+
+# filter just the municipality
+selected_mun_urban <- mun_code[which(mun_code$Cod_Mun == '001001'), ]
+
+# download the desired municipality
+user_selection <- download_selected_mun("001001")
+download_municipality(user_selection)
+
+# fit the variable inside the percent_urbanized function
+data_frame_data <- percent_urbanized(selected_mun_urban)
+
+```
+
+At the end in the following plot it is possible to see an example of what can be produced with the percent_urbanized function. 
+The map shows the level of urbanization for each municipality of the chosen province. 
+
+```{r pressure2, echo = FALSE}
+
+library(bdtre.download)
+library(dplyr)
+
+# merging the shps relative to the municipality surfaces
+nc_merge2 <- merging_shp('limi_comuni_piem')
+
+# join the municipality surface with the realtive urbanized area indicator got from the percent_urbanized function
+join_to_plot <- inner_join(nc_merge2, data_frame_data, by ="COMUNE_IST")
+
+# plotting the result
+plot(join_to_plot[27])
+
+```

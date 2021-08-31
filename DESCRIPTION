@@ -1,0 +1,20 @@
+Package: bdtre.download
+Type: Package
+Title: Download BDTRE database from the Piedmont (Piemonte) geoportal and perform some analysis
+Version: 0.1.0
+Author: Stefano Cunietti <m20200031@novaims.unl.pt>, Matheus Nascimento <g20200024@novaims.unl.pt>
+Maintainer: Stefano Cunietti <m20200031@novaims.unl.pt>, Matheus Nascimento <g20200024@novaims.unl.pt>
+Description: Provides functionalities to download and manage in a simple way geodata from the BDTRE database developed by the Piedmont geoportal. 
+License: GPL-3
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.1.1
+URL: https://github.com/Magio94/bdtre.download
+BugReports: https://github.com/Magio94/bdtre.download/issues
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Imports: sf, dplyr
+Config/testthat/edition: 3
