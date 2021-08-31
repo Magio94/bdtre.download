@@ -1,10 +1,10 @@
-library(bdtre.download)
-usethis::use_testthat()
-library(testthat)
+
 
 context("A test for the bdtre.download package")
 
-testthat("Whether printer gives us the same output", {
+library(testthat)
+
+test_that("Whether printer gives us the same output", {
 
   set.seed(1)
   Biella_province <- get_municipality_codes("096")
@@ -18,4 +18,5 @@ testthat("Whether printer gives us the same output", {
 }
 
 )
+
 
