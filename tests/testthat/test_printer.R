@@ -14,6 +14,7 @@ test_that("Whether printer gives us the same output", {
   download_municipality(Biella_province)
   n_rows <- c(selection_path('limi_comuni_piem'))
   expect_equal(length(n_rows), 74)
+  unlink("Downloaded", recursive = TRUE)
 
 }
 
